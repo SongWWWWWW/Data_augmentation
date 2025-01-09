@@ -42,6 +42,12 @@ pip install -r requirements.txt
 
 # quick build baseline
 ```bash
+mkdir ./data/
+mkdir ./results/
+mkdir ./data/test/
+mkdir ./data/train/
+mkdir ./scripts/results/
+unzip ./vast.zip
 cd scripts/
 bash build_baseline.sh
 ```
