@@ -87,7 +87,7 @@ if __name__ == "__main__":
     metrics_callback = MetricsRecorderCallback()
     args = parse_args()
 
-    set_seed(args.seed)
+    set_seed(args)
 
     model = RoBERTa_MLP(num_labels=args.num_labels)
     # path_train = "../data/combine_train_generate_data.csv"
@@ -95,7 +95,6 @@ if __name__ == "__main__":
     train_dataset = prepare_data(args.train_path)
     eval_dataset = prepare_data(args.val_path)
     log_path = os.path.join(args.save_path,"logs")
-    s
     if not os.path.exists(log_path):
     # 如果文件夹不存在，则使用os.makedirs()创建文件夹
         os.makedirs(log_path)
@@ -104,8 +103,6 @@ if __name__ == "__main__":
         print(f"文件夹'{log_path}'已存在。")
 
     # loss_fn = nn.CrossEntropyLoss()
-
-
 
 
     training_args = TrainingArguments(
@@ -118,7 +115,10 @@ if __name__ == "__main__":
         lr_scheduler_type="linear",      # 选择线性学习率调度器
         warmup_steps=10,                # 设置预热步数
         logging_steps=1,                    # 每一步记录日志
-        logging_dir=log_path            # 指定日志文件夹
+        logging_dir=log_path,           # 指定日志文件夹
+        save_total_limit=1,    
+        metric_for_best_model="f1", 
+        greater_is_better=True, 
     )
 
     trainer = Trainer(
@@ -127,7 +127,8 @@ if __name__ == "__main__":
         train_dataset=train_dataset,     # 训练数据
         eval_dataset=eval_dataset,       # 开发集
         compute_metrics=compute_metrics, # 评估指标
-        callbacks=[metrics_callback]
+        callbacks=[metrics_callback],
+        
     )
 
     trainer.train()
