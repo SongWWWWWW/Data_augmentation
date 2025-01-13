@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 import os
 import json
 import math
+import numpy as np
+import random
+
 def compute_metrics(p):
     predictions, labels = p
     # 将预测结果转换为类别索引
@@ -22,6 +25,12 @@ def compute_metrics(p):
     # print("preds: ",preds,"\nlabels: ",labels)
 
     return {"f1": f1_score(labels, preds, average="macro")}  # 返回宏平均 F1 分数
+
+
+def set_seed(args):
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
 
 def prepare_data(path):
     data = PrepareData(path)
@@ -78,12 +87,15 @@ if __name__ == "__main__":
     metrics_callback = MetricsRecorderCallback()
     args = parse_args()
 
+    set_seed(args.seed)
+
     model = RoBERTa_MLP(num_labels=args.num_labels)
     # path_train = "../data/combine_train_generate_data.csv"
     # path = """../vast/raw_{}_all_onecol.csv"""
     train_dataset = prepare_data(args.train_path)
     eval_dataset = prepare_data(args.val_path)
     log_path = os.path.join(args.save_path,"logs")
+    s
     if not os.path.exists(log_path):
     # 如果文件夹不存在，则使用os.makedirs()创建文件夹
         os.makedirs(log_path)

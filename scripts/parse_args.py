@@ -14,6 +14,7 @@ def parse_args():
     parser.add_argument('--train_path', type=str, help="the path of train set")
     parser.add_argument('--val_path', type=str, help="the path of val set")
     parser.add_argument('--save_path', type=str,help="the path of saving model")
+    parser.add_argument('--seed', type=int,help="random seed")
     return parser.parse_args()
 
 def eval_parse_args():
