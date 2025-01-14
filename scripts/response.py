@@ -1,11 +1,12 @@
 from utils import get_model_batch_response
 import math
+import tqdm 
 
 def get_batch_response(model:str, prompts:list, batch = 30,temperature=0, max_token=8192):
     if "llama" in model:
         # meta.llama3-1-8b-instruct-v1:0
         response = []
-        for i in range(math.ceil(len(prompts)/batch)):
+        for i in tqdm.tqdm(range(math.ceil(len(prompts)/batch))):
             # print(i)
             temp_prompt = prompts[i*batch:(i+1)*batch]
             try: 

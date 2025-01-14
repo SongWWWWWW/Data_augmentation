@@ -8,7 +8,7 @@ task_name = "rewrite"
 num_iterations = 3  # 总共迭代轮数
 base_data_path = f"../data/train/{task_name}"
 os.makedirs(base_data_path, exist_ok=True)
-base_results_path = f"./results/{task_name}_iter"
+base_results_path = f"../results/{task_name}_iter"
 base_raw_train_path = "../vast/raw_train_all_onecol.csv"
 base_raw_val_path = "../vast/raw_val_all_onecol.csv"
 base_raw_test_path = "../vast/raw_test_all_onecol.csv"
@@ -30,8 +30,8 @@ use_gpu = True
 # 开始迭代
 prev_train_path = base_raw_train_path
 prev_dev_path = base_raw_val_path
-dev_wrong_path = "./results/baseline/checkpoint-318/log_dev_wrong_test_data.json"
-pre_model_path = "./results/baseline"
+dev_wrong_path = "../results/baseline/checkpoint-216/log_dev_wrong_test_data.json"
+pre_model_path = "../results/baseline"
 for i in range(1, num_iterations + 1):
     iter_name = f"iter{i}"
     current_results_path = f"{base_results_path}{i}/"
