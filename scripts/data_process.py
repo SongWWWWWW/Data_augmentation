@@ -16,9 +16,9 @@ def format_prompt(data,prompt, task,description,spurious_num,generate_num):
     # the data is from model's inference
     # but that is needed to transform to { "FAVOR": 1, "NONE": 2, "AGAINST": 0}
     transform_dict = {
-        0: 1,
-        1: 2,
-        2: 0
+        0: 'FAVOR',
+        1: 'NONE',
+        2: 'AGAINST'
     }
     prompts = []
     for d in data:
@@ -154,32 +154,33 @@ def parse(answer:str,args):
     if len(ans) != args.spurious_num*args.generate_num:
         return []
     return ans
-def sample(args):
-    import json
-    path = "error file"
-    with open(path,"r") as f:
-        data = json.load(f)
-    index = []
-    for i in range(527):
-        index.append([0]*3)
-        for x in data:
-            if x["index"] >= i*60 and x["index"] < (i+1)*60:
-                index[i][(x["index"]-i*60)//20] += 1
-    ans = []
-    for index_i,i in enumerate(index):
-        for index_j,j in enumerate(i):
-            if j == 20:
-                ans.append(index_i*60+index_j*20)
-    print(len(ans))
-    ans
-    with open("/home/ubuntu/wcc/now-task/data/train/spurious_1_60_parse.json","r") as f:
-        parse = json.load(f)
-    final_data = []
-    for i in ans:
-        final_data += parse[i:i+20]
 
-    with open("/home/ubuntu/wcc/now-task/data/train/train_spurious_1_60_parse_100%.json","w") as f:
-        json.dump(final_data,f,indent=4)
+# def sample(args):
+#     import json
+#     path = "error file"
+#     with open(path,"r") as f:
+#         data = json.load(f)
+#     index = []
+#     for i in range(527):
+#         index.append([0]*3)
+#         for x in data:
+#             if x["index"] >= i*60 and x["index"] < (i+1)*60:
+#                 index[i][(x["index"]-i*60)//20] += 1
+#     ans = []
+#     for index_i,i in enumerate(index):
+#         for index_j,j in enumerate(i):
+#             if j == 20:
+#                 ans.append(index_i*60+index_j*20)
+#     print(len(ans))
+#     ans
+#     with open("/home/ubuntu/wcc/now-task/data/train/spurious_1_60_parse.json","r") as f:
+#         parse = json.load(f)
+#     final_data = []
+#     for i in ans:
+#         final_data += parse[i:i+20]
+
+#     with open("/home/ubuntu/wcc/now-task/data/train/train_spurious_1_60_parse_100%.json","w") as f:
+#         json.dump(final_data,f,indent=4)
         
         
 args = parse_args()

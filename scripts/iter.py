@@ -5,7 +5,7 @@ from find_path import find_path
 # task 配置
 task_name = "rewrite"
 # 参数配置
-num_iterations = 3  # 总共迭代轮数
+num_iterations = 1  # 总共迭代轮数
 base_data_path = f"../data/train/{task_name}"
 os.makedirs(base_data_path, exist_ok=True)
 base_results_path = f"../results/{task_name}_iter"
@@ -19,7 +19,7 @@ prompt = "prompt1"
 task = "task1"
 description = "description1"
 split_dev_rate = 0.3
-sample_rate = 0.8
+sample_rate = 1.0
 generate_num = 10
 spurious_num = 3
 batch_size = 64
