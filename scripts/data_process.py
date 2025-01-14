@@ -215,7 +215,7 @@ print(f"Parse Data Completely！ ")
 # process data eg: sample transform 
 # sample_rate: Setting sample_rate equals 0.8, if the large model generate 10 instances per spurious pattern, and the pre model can't classify
 # 8 or 8+, and then this 10 instances will be added to train or dev dataset.
-if args.sample_rate < 1.0:
+if args.sample_rate <= 1.0:
     transform_to_csv(parse_response,csv_parse_response_path)
     # TEMP
     if not os.path.exists(os.path.join(args.model_path,"logs",f"log_sample_{args.trial_name}_eval_log.json")):
