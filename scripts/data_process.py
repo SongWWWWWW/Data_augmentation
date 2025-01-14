@@ -60,6 +60,7 @@ def parse_args():
     parser.add_argument('--raw_train_path', type=str, required=True, help="Path to the previous train data.")
     parser.add_argument('--sample_rate', type=float, required=True,help="sample generated data that model can't classfie")
     parser.add_argument('--model_path', type=str, help="if 1 > sample_rate > 0, model_path required, that is the model of dev_wrong_path ")
+    parser.add_argument('--trial_name', type=str, help="be used to sign this trial")
     return parser.parse_args()
 def save(data, path):
     try:
@@ -203,6 +204,7 @@ if not os.path.exists(raw_response_path):
 else: 
     with open(raw_response_path,"r") as f:
         raw_response = json.load(f)
+    print(f"Data is existed, path: {raw_response_path}")
 
 parse_response = []  
 for r in raw_response:
@@ -211,21 +213,23 @@ print(f"Parse Data Completely！ ")
 
 
 # process data eg: sample transform 
+# sample_rate: Setting sample_rate equals 0.8, if the large model generate 10 instances per spurious pattern, and the pre model can't classify
+# 8 or 8+, and then this 10 instances will be added to train or dev dataset.
 if args.sample_rate < 1.0:
     transform_to_csv(parse_response,csv_parse_response_path)
     # TEMP
-    if not os.path.exists(os.path.join(args.model_path,"logs","log_sample_eval_log.json")):
+    if not os.path.exists(os.path.join(args.model_path,"logs",f"log_sample_{args.trial_name}_eval_log.json")):
         os.system(
             f"python eval.py "
             f"--model_root_path '{args.model_path}' "
             f"--test_path '{csv_parse_response_path}' "
             f"--output_error_question False "
             f"--save_log True "
-            f"--sign sample "
+            f"--sign sample_{args.trial_name} "
         )
     # NOTE the data that model generate shoule be transform to normal label
     best_checkpoint = find_path(args.model_path)
-    error_path = os.path.join(best_checkpoint, "log_sample_wrong_test_data.json")
+    error_path = os.path.join(best_checkpoint, f"log_sample_{args.trial_name}_wrong_test_data.json")
     
     with open(error_path,"r") as f:
         error_data = json.load(f)
@@ -254,7 +258,7 @@ if args.sample_rate < 1.0:
     for i in ans:
         print(i)
         dev += parse_response[i:i+int(args.split_dev_rate*args.generate_num)]
-        train += parse_response[i+int(args.split_dev_rate*args.generate_num):i+args.spurious_num*args.generate_num]
+        train += parse_response[i+int(args.split_dev_rate*args.generate_num):i+1*args.generate_num]
     
 # combined
 

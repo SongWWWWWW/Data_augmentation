@@ -30,8 +30,9 @@ use_gpu = True
 # 开始迭代
 prev_train_path = base_raw_train_path
 prev_dev_path = base_raw_val_path
-dev_wrong_path = "../results/baseline/checkpoint-216/log_dev_wrong_test_data.json"
+# dev_wrong_path = "../results/baseline/checkpoint-216/log_dev_wrong_test_data.json"
 pre_model_path = "../results/baseline"
+dev_wrong_path = os.path.join(find_path(pre_model_path),"log_dev_wrong_test_data.json")
 for i in range(1, num_iterations + 1):
     iter_name = f"iter{i}"
     current_results_path = f"{base_results_path}{i}/"
