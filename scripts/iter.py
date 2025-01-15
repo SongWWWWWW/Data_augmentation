@@ -1,11 +1,27 @@
 import os
 from find_path import find_path
+import argparse
 
+def parse_args():
 
+    parser = argparse.ArgumentParser(description="Parse arguments for task configuration.")
+    
+
+    parser.add_argument("--task_name", type=str, required=True, help="The name of the task to execute.")
+    
+
+    parser.add_argument("--sample_rate", type=float, default=0.0, help="The sampling rate for the task. Default is 0.0.")
+    
+    # 解析命令行参数
+    args = parser.parse_args()
+    return args
+args = parse_args()
+task_name = args.task_name
+sample_rate = args.sample_rate
 # task 配置
-task_name = "rewrite"
+# task_name = "prompt2_3.1_7_3_0.8"
 # 参数配置
-num_iterations = 1  # 总共迭代轮数
+num_iterations = 3  # 总共迭代轮数
 base_data_path = f"../data/train/{task_name}"
 os.makedirs(base_data_path, exist_ok=True)
 base_results_path = f"../results/{task_name}_iter"
@@ -15,11 +31,13 @@ base_raw_test_path = "../vast/raw_test_all_onecol.csv"
 
 # 模型和训练配置
 model_name = "meta.llama3-1-70b-instruct-v1:0"
-prompt = "prompt1"
+prompt = "prompt2"
 task = "task1"
 description = "description1"
+
 split_dev_rate = 0.3
-sample_rate = 1.0
+# sample_rate = 0.8
+
 generate_num = 10
 spurious_num = 3
 batch_size = 64
@@ -30,9 +48,11 @@ use_gpu = True
 # 开始迭代
 prev_train_path = base_raw_train_path
 prev_dev_path = base_raw_val_path
+dev_wrong_path = "./results/baseline/checkpoint-318/log_dev_wrong_test_data.json"
 # dev_wrong_path = "../results/baseline/checkpoint-216/log_dev_wrong_test_data.json"
-pre_model_path = "../results/baseline"
-dev_wrong_path = os.path.join(find_path(pre_model_path),"log_dev_wrong_test_data.json")
+# pre_model_path = "../results/baseline"
+pre_model_path = "./results/baseline"
+# dev_wrong_path = os.path.join(find_path(pre_model_path),"log_dev_wrong_test_data.json")
 for i in range(1, num_iterations + 1):
     iter_name = f"iter{i}"
     current_results_path = f"{base_results_path}{i}/"
@@ -58,6 +78,7 @@ for i in range(1, num_iterations + 1):
         f"--raw_train_path '{prev_train_path}' " # change √
         f"--sample_rate {sample_rate} "
         f"--model_path {pre_model_path} " # change √
+        f"--trial_name {task_name}"
     )
 
     # 模型训练

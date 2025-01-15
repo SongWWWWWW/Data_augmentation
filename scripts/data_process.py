@@ -209,9 +209,15 @@ else:
 parse_response = []  
 for r in raw_response:
     parse_response += parse(r,args)
-print(f"Parse Data Completely！ ")
+print(f"Parse Data Completely！ length = {len(parse_response)}")
 
-
+log_delete = []
+groups = [parse_response[i:i + args.generate_num] for i in range(0, len(parse_response), args.generate_num)]
+filtered_groups = [
+    group for group in groups 
+    if all(item["ground_truth"] in ["0","1","2","AGAINST","NONE","FAVOR"] for item in group)
+]
+parse_response = [item for group in filtered_groups for item in group]
 # process data eg: sample transform 
 # sample_rate: Setting sample_rate equals 0.8, if the large model generate 10 instances per spurious pattern, and the pre model can't classify
 # 8 or 8+, and then this 10 instances will be added to train or dev dataset.
@@ -233,7 +239,7 @@ if args.sample_rate <= 1.0:
     
     with open(error_path,"r") as f:
         error_data = json.load(f)
-        
+    print(f"Model path: {args.model_path}, error data length: {len(error_data)}")
     index_error = []
     error_target_position = []
     for index, i in enumerate(parse_response):
@@ -263,10 +269,10 @@ if args.sample_rate <= 1.0:
 # combined
 
 save(train,parse_response_path)
-print(f"Split Data Completely！ Train Data Save to [{parse_response_path}]")
+print(f"Split Data Completely！ Train Data Save to [{parse_response_path}]! length = {len(train)}")
 
 save(dev,parse_response_dev_path)
-print(f"Split Data Completely！ Dev Data Save to [{parse_response_dev_path}]")
+print(f"Split Data Completely！ Dev Data Save to [{parse_response_dev_path}]! length = {len(dev)}")
 
 # model output label ?
 model_output_transform_to_csv(train, csv_parse_response_path )
