@@ -24,8 +24,8 @@ def compute_metrics(p):
 def get_model_path(path:str):
     paths = []
     for root, dirs, files in os.walk(path):
+        dirs.sort()
         for dir_name in dirs:
-            dirs.sort()
             if dir_name == "logs":
                 continue
             dir_path = os.path.join(root, dir_name)

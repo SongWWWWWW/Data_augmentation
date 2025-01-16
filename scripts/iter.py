@@ -5,19 +5,16 @@ import argparse
 def parse_args():
 
     parser = argparse.ArgumentParser(description="Parse arguments for task configuration.")
-    
-
     parser.add_argument("--task_name", type=str, required=True, help="The name of the task to execute.")
-    
-
     parser.add_argument("--sample_rate", type=float, default=0.0, help="The sampling rate for the task. Default is 0.0.")
-    
+    parser.add_argument("--data_generate_strategy", type=str, default=None,help="the strategy of generating data")
     # 解析命令行参数
     args = parser.parse_args()
     return args
 args = parse_args()
 task_name = args.task_name
 sample_rate = args.sample_rate
+data_generate_strategy = str(args.data_generate_strategy)
 # task 配置
 # task_name = "prompt2_3.1_7_3_0.8"
 # 参数配置
@@ -78,7 +75,8 @@ for i in range(1, num_iterations + 1):
         f"--raw_train_path '{prev_train_path}' " # change √
         f"--sample_rate {sample_rate} "
         f"--model_path {pre_model_path} " # change √
-        f"--trial_name {task_name}"
+        f"--trial_name {task_name} "
+        f"--data_generate_strategy {data_generate_strategy} "
     )
 
     # 模型训练

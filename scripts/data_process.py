@@ -10,6 +10,7 @@ import csv
 import os
 import pandas as pd
 from find_path import find_path
+from data_generate_strategy import get_strategy
 def format_prompt(data,prompt, task,description,spurious_num,generate_num):
     # NOTE
     # model's label { "FAVOR": 0  , "NONE": 1 , "AGAINST":  2}
@@ -61,6 +62,8 @@ def parse_args():
     parser.add_argument('--sample_rate', type=float, required=True,help="sample generated data that model can't classfie")
     parser.add_argument('--model_path', type=str, help="if 1 > sample_rate > 0, model_path required, that is the model of dev_wrong_path ")
     parser.add_argument('--trial_name', type=str, help="be used to sign this trial")
+    parser.add_argument("--data_generate_strategy", type=str, help="the strategy of generating data")
+    
     return parser.parse_args()
 def save(data, path):
     try:
@@ -196,20 +199,26 @@ csv_parse_response_dev_path = parse_response_dev_path.rstrip(".json") + ".csv"
 combined_train_path =  csv_parse_response_path.rstrip(".csv") + "_combined.csv"
 combined_dev_path = csv_parse_response_dev_path.rstrip("v").rstrip(".cs") + "_combined.csv"
 # generate data
+if args.data_generate_strategy is None:
+    print("Data generate strategy : default")
+    if not os.path.exists(raw_response_path):
+        raw_response = get_raw_response(args)
+        save(raw_response,raw_response_path)
+        print(f"Get Data Completely！ Save to [{raw_response_path}]")
+    else: 
+        with open(raw_response_path,"r") as f:
+            raw_response = json.load(f)
+        print(f"Data is existed, path: {raw_response_path}")
+    parse_response = []  
+    for r in raw_response:
+        parse_response += parse(r,args)
+    print(f"Parse Data Completely！ length = {len(parse_response)}")
+    
+else:
+    print(f"Data generate strategy : {args.data_generate_strategy}")
+    strategy = get_strategy(args.data_generate_strategy)
+    parse_response = strategy(args)
 
-if not os.path.exists(raw_response_path):
-    raw_response = get_raw_response(args)
-    save(raw_response,raw_response_path)
-    print(f"Get Data Completely！ Save to [{raw_response_path}]")
-else: 
-    with open(raw_response_path,"r") as f:
-        raw_response = json.load(f)
-    print(f"Data is existed, path: {raw_response_path}")
-
-parse_response = []  
-for r in raw_response:
-    parse_response += parse(r,args)
-print(f"Parse Data Completely！ length = {len(parse_response)}")
 
 log_delete = []
 groups = [parse_response[i:i + args.generate_num] for i in range(0, len(parse_response), args.generate_num)]
@@ -262,7 +271,7 @@ if args.sample_rate <= 1.0:
     train = []
     dev = []
     for i in ans:
-        print(i)
+        # print(i)
         dev += parse_response[i:i+int(args.split_dev_rate*args.generate_num)]
         train += parse_response[i+int(args.split_dev_rate*args.generate_num):i+1*args.generate_num]
     
