@@ -8,6 +8,7 @@ def parse_args():
     parser.add_argument("--task_name", type=str, required=True, help="The name of the task to execute.")
     parser.add_argument("--sample_rate", type=float, default=0.0, help="The sampling rate for the task. Default is 0.0.")
     parser.add_argument("--data_generate_strategy", type=str, default=None,help="the strategy of generating data")
+    parser.add_argument("--generate_num",type=int,default=10,help="the number of generated instances")
     # 解析命令行参数
     args = parser.parse_args()
     return args
@@ -18,7 +19,7 @@ data_generate_strategy = str(args.data_generate_strategy)
 # task 配置
 # task_name = "prompt2_3.1_7_3_0.8"
 # 参数配置
-num_iterations = 3  # 总共迭代轮数
+num_iterations = 4  # 总共迭代轮数
 base_data_path = f"../data/train/{task_name}"
 os.makedirs(base_data_path, exist_ok=True)
 base_results_path = f"../results/{task_name}_iter"
@@ -35,7 +36,7 @@ description = "description1"
 split_dev_rate = 0.3
 # sample_rate = 0.8
 
-generate_num = 10
+generate_num = args.generate_num
 spurious_num = 3
 batch_size = 64
 epochs = 10
