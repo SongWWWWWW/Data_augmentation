@@ -11,6 +11,11 @@ import os
 import pandas as pd
 from find_path import find_path
 from data_generate_strategy import get_strategy
+import random
+from data_augmentation_train import augmentation
+def set_seed(args):
+    random.seed(args.seed)
+    
 def format_prompt(data,prompt, task,description,spurious_num,generate_num):
     # NOTE
     # model's label { "FAVOR": 0  , "NONE": 1 , "AGAINST":  2}
@@ -63,7 +68,10 @@ def parse_args():
     parser.add_argument('--model_path', type=str, help="if 1 > sample_rate > 0, model_path required, that is the model of dev_wrong_path ")
     parser.add_argument('--trial_name', type=str, help="be used to sign this trial")
     parser.add_argument("--data_generate_strategy", type=str, help="the strategy of generating data")
-    
+    parser.add_argument("--augmentation_rate",type=float,default=0.0,help="the rate of generating  k pieces of data similar to those in the training dataset ")
+    parser.add_argument("--augmentation_num",type=int,default=5,help="the num of generating  k pieces of data similar to those in the training dataset")
+    parser.add_argument('--seed', type=int,default=42,help="random seed")
+   
     return parser.parse_args()
 def save(data, path):
     try:
@@ -188,6 +196,7 @@ def parse(answer:str,args):
         
         
 args = parse_args()
+set_seed(args)
 print(args)
 # NOTE please change the code followed before figuring out the content of ".rstrip "
 raw_response_path = args.raw_answer_save_path
@@ -276,7 +285,7 @@ if args.sample_rate <= 1.0:
         train += parse_response[i+int(args.split_dev_rate*args.generate_num):i+1*args.generate_num]
     
 # combined
-
+    
 save(train,parse_response_path)
 print(f"Split Data Completely！ Train Data Save to [{parse_response_path}]! length = {len(train)}")
 
@@ -291,3 +300,36 @@ combine_data(args.raw_train_path,csv_parse_response_path,combined_train_path)
 combine_data(args.raw_dev_path,csv_parse_response_dev_path,combined_dev_path)
 print(f"Combine Data Completely！ Train Data Save to [{combined_train_path}]")
 print(f"Combine Data Completely！ Dev Data Save to [{combined_dev_path}]")
+
+if args.augmentation_rate > 0.0:
+    # df = pd.read_csv(combined_train_path)
+    # df_filtered = df[['Tweet', 'Target 1', 'Stance 1']]
+    # json_data = df_filtered.to_json(orient='records', lines=False)
+    
+    with open(combined_train_path, mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file) 
+        json_data = [row for row in reader]
+    for i in json_data:
+        del i["seen?"]
+        del i["GT Target"]
+    total_num = len(json_data)
+    random_numbers = random.sample(range(1, total_num + 1), int(total_num*args.augmentation_rate))
+    sample_list = []
+    raw_data = []
+    for i in json_data:
+        raw_data.append({
+            "text":i["Tweet"],
+            "target":i["Target 1"],
+            "ground_truth":i["Stance 1"]
+        })
+    for i in random_numbers:
+        sample_list.append({
+            "text":json_data[i]["Tweet"],
+            "target":json_data[i]["Target 1"],
+            "ground_truth":json_data[i]["Stance 1"]
+            })
+    generate_stances = augmentation(sample_list,args.augmentation_num,args.model)
+    final_data = raw_data + generate_stances
+    transform_to_csv(final_data,combined_train_path)
+    print(f"Augmentation num: {len(generate_stances)}, save combined data to {combined_train_path} ")
+    

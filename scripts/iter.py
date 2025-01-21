@@ -9,6 +9,8 @@ def parse_args():
     parser.add_argument("--sample_rate", type=float, default=0.0, help="The sampling rate for the task. Default is 0.0.")
     parser.add_argument("--data_generate_strategy", type=str, default=None,help="the strategy of generating data")
     parser.add_argument("--generate_num",type=int,default=10,help="the number of generated instances")
+    parser.add_argument("--augmentation_rate",type=float,default=0.0,help="the rate of generating  k pieces of data similar to those in the training dataset ")
+    parser.add_argument("--augmentation_num",type=int,default=5,help="the num of generating  k pieces of data similar to those in the training dataset")
     # 解析命令行参数
     args = parser.parse_args()
     return args
@@ -16,6 +18,8 @@ args = parse_args()
 task_name = args.task_name
 sample_rate = args.sample_rate
 data_generate_strategy = str(args.data_generate_strategy)
+augmentation_rate = args.augmentation_rate
+augmentation_num = args.augmentation_num
 # task 配置
 # task_name = "prompt2_3.1_7_3_0.8"
 # 参数配置
@@ -78,6 +82,8 @@ for i in range(1, num_iterations + 1):
         f"--model_path {pre_model_path} " # change √
         f"--trial_name {task_name} "
         f"--data_generate_strategy {data_generate_strategy} "
+        f"--augmentation_rate {augmentation_rate} "
+        f"--augmentation_num {augmentation_num} "
     )
 
     # 模型训练
