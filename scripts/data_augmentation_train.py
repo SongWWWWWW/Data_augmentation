@@ -3,20 +3,62 @@ import json
 import re
 model = "meta.llama3-1-8b-instruct-v1:0"
 def format_prompt(k,data):
-    prompt = """
-    You are given the following JSON data:
+    # prompt = """
+    # You are given the following JSON data:
 
+    # {data}
+
+    # Your task is to generate {k} new XML examples that follow the same structure as the provided JSON. Each new example must have the same elements as the original JSON data . The new examples should reflect the underlying patterns of the original data while ensuring diversity. 
+
+    # For each new example:
+    # 1. The structure of the XML should match the original JSON, with the same elements.
+    # 2. The values should be different, but the format and types (e.g., numbers, strings, lists) should remain consistent with the original data.
+    # 3. The new XML data should be valid and realistic for the context of the task.
+    # 4. The ground_truth should be one of [FAVOR,NONE,AGAINST].
+
+    # Please output the generated data in the following XML format, where each element corresponds to a key in the original JSON:
+
+    # ```xml
+    # <data>
+    #     <example_1>
+    #         <text>Regulation of corporations has been subverted by corporations. States that incorporate corporations are not equipped to regulate corporations that are rich enough to influence elections, are rich enough to muster a legal team that can bankrupt the state. Money from corporations and their principals cannot be permitted in the political process if democracy is to survive.</text>
+    #         <target>company</target>
+    #         <ground_truth>AGAINST</ground_truth>
+    #     </example_1>
+    #     <example_2>
+    #         <text>The whole media mess surrounding the royals is a consequence of the promotional fervor with which royal households (aka, public relations experts) developed stage-set performances for the public to devour. Prior to the Victorian era, those elaborate and lethally expensive weddings, coronations, and funerals - and the fairy tales that went along with them - just didn't exist.</text>
+    #         <target>flag burning</target>
+    #         <ground_truth>NONE</ground_truth>
+    #     </example_2>
+    #     <example_3>
+    #         <text>Two of the main reasons people switch to cannabis from pharmaceuticals and other drugs such as alcohol: less side-effects and less withdrawal: ""Over 41% state that they use cannabis as a substitute for alcohol, 36.1% use cannabis as a substitute for illicit substances, and 67.8% use cannabis as a substitute for prescription drugs. The three main reasons cited for cannabis-related substitution are 'less withdrawal' (67.7%), 'fewer side-effects' (60.4%), and 'better symptom management' suggesting that many patients may have already identified cannabis as an effective and potentially safer adjunct or alternative to their prescription drug regimen."" [Lucas et al. Cannabis as a substitute for alcohol and other drugs: A dispensary-based survey of substitution effect in Canadian medical cannabis patients. Addiction Research & Theory. 2013]</text>
+    #         <target>marijuana</target>
+    #         <ground_truth>FAVOR</ground_truth>
+    #     </example_3>
+    #     ...
+    # </data>
+
+    # """
+    prompt = """ 
+    You are tasked with augmenting stance detection data for training a student model. Stance detection involves identifying an author's attitude or position [FAVOR, NONE, AGAINST] toward a specific target, such as an entity or topic.
+
+    Given the following JSON data:
     {data}
 
-    Your task is to generate {k} new XML examples that follow the same structure as the provided JSON. Each new example must have the same elements as the original JSON data . The new examples should reflect the underlying patterns of the original data while ensuring diversity. 
+    Your task is to generate {k} new XML examples that follow the same structure as the provided JSON. Each new example must have the same elements as the original JSON data.
 
-    For each new example:
-    1. The structure of the XML should match the original JSON, with the same elements.
-    2. The values should be different, but the format and types (e.g., numbers, strings, lists) should remain consistent with the original data.
-    3. The new XML data should be valid and realistic for the context of the task.
+    Follow these instructions:
+    1. **Minimal changes to stance**: Modify a few words or phrases in the original text to create examples with the other two possible labels (`FAVOR` and `NONE`) while retaining the same target. Provide two examples.
+    2. **Paraphrase without changing stance**: Rewrite the original text in a different style while preserving its target and stance. Provide one example.
+    3. **Change target**: Create one new example by altering the target to a completely different topic while providing a corresponding stance.
+
+    Each example must:
+    1. Use XML format and include all keys from the original JSON (`text`, `target`, `ground_truth`).
+    2. Maintain realistic and contextually valid content, avoiding overt expressions of love, dislike, or neutrality.
+    3. Be diverse in style, length, and phrasing but keep similar complexity.
     4. The ground_truth should be one of [FAVOR,NONE,AGAINST].
 
-    Please output the generated data in the following XML format, where each element corresponds to a key in the original JSON:
+    Output all generated data in this format:
 
     ```xml
     <data>
@@ -37,7 +79,6 @@ def format_prompt(k,data):
         </example_3>
         ...
     </data>
-
     """
     return prompt.format(k=k,data=data)
 def parse2(s:str):
